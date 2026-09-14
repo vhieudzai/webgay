@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Key - VIHIEU HUB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #05050a;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Hiệu ứng nền Ma trận / Các hạt lấp lánh chuyển động */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Khung chứa chính (Glassmorphism + Hiệu ứng nổi bật) */
+        .container {
+            position: relative;
+            z-index: 2;
+            background: rgba(20, 20, 35, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(138, 43, 226, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.05);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            animation: floatCard 4s ease-in-out infinite;
+        }
+
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Tiêu đề đổi màu RGB siêu đẹp */
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff007f, #7928ca, #00dfd8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: hueShift 6s linear infinite;
+        }
+
+        @keyframes hueShift {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        p {
+            color: #a0aec0;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        /* Ô hiển thị Key */
+        .key-box {
+            background: rgba(10, 10, 20, 0.9);
+            border: 2px dashed #7928ca;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 16px;
+            color: #00dfd8;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            word-break: break-all;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .key-box:hover {
+            border-color: #00dfd8;
+            box-shadow: 0 0 15px rgba(0, 223, 216, 0.4);
+        }
+
+        /* Nút bấm hiệu ứng Neon Glow */
+        .btn {
+            background: linear-gradient(135deg, #7928ca, #ff007f);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s ease;
+            box-shadow: 0 5px 15px rgba(121, 40, 202, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 25px rgba(255, 0, 127, 0.6);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Thông báo nhỏ (Copied successfully) */
+        .toast {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #00dfd8;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hiệu ứng nền hạt không gian -->
+    <canvas id="bgCanvas"></canvas>
+
+    <div class="container">
+        <h1>VIHIEU HUB</h1>
+        <p>Hệ thống Get Key tự động siêu tốc độ bảo mật cao</p>
+        
+        <div class="key-box" id="keyText">VIHIEU-HUB-DZHUD</div>
+        
+        <button class="btn" onclick="copyKey()">SAO CHÉP KEY NGAY</button>
+        
+        <div class="toast" id="toastMsg">✨ Đã sao chép key thành công vào bộ nhớ tạm!</div>
+    </div>
+
+    <script>
+        // --- Hiệu ứng nền các hạt chuyển động (Particle Background) ---
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particlesArray;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = Math.random() > 0.5 ? '#7928ca' : '#00dfd8';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX = -this.speedX;
+                if (this.y < 0 || this.y > canvas.height) this.speedY = -this.speedY;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.width * canvas.height) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+
+                // Nối các đường thẳng mờ giữa các hạt gần nhau tạo hiệu ứng không gian mạng
+                for (let j = i; j < particlesArray.length; j++) {
+                    let dx = particlesArray[i].x - particlesArray[j].x;
+                    let dy = particlesArray[i].y - particlesArray[j].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 100) {
+                        ctx.strokeStyle = `rgba(121, 40, 202, ${1 - distance / 100})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                        ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+
+        // --- Chức năng bấm nút Copy Key ---
+        function copyKey() {
+            const keyText = document.getElementById('keyText').innerText;
+            const toast = document.getElementById('toastMsg');
+
+            navigator.clipboard.writeText(keyText).then(() => {
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2500);
+            });
+        }
+    </script>
+</body>
+</html>
