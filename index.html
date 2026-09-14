@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Key - VIHIEU HUB</title>
+    <title>Get Key & Discord - VIHIEU HUB</title>
     <style>
         * {
             margin: 0;
@@ -23,7 +23,6 @@
             position: relative;
         }
 
-        /* Hiệu ứng nền Ma trận / Các hạt lấp lánh chuyển động */
         canvas {
             position: absolute;
             top: 0;
@@ -33,7 +32,6 @@
             z-index: 1;
         }
 
-        /* Khung chứa chính (Glassmorphism + Hiệu ứng nổi bật) */
         .container {
             position: relative;
             z-index: 2;
@@ -55,7 +53,6 @@
             50% { transform: translateY(-10px); }
         }
 
-        /* Tiêu đề đổi màu RGB siêu đẹp */
         h1 {
             font-size: 28px;
             margin-bottom: 10px;
@@ -76,7 +73,17 @@
             margin-bottom: 25px;
         }
 
-        /* Ô hiển thị Key */
+        .menu-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .key-section {
+            display: none;
+            margin-top: 15px;
+        }
+
         .key-box {
             background: rgba(10, 10, 20, 0.9);
             border: 2px dashed #7928ca;
@@ -86,10 +93,8 @@
             font-size: 16px;
             color: #00dfd8;
             letter-spacing: 1px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             word-break: break-all;
-            position: relative;
-            overflow: hidden;
             transition: 0.3s;
         }
 
@@ -98,7 +103,6 @@
             box-shadow: 0 0 15px rgba(0, 223, 216, 0.4);
         }
 
-        /* Nút bấm hiệu ứng Neon Glow */
         .btn {
             background: linear-gradient(135deg, #7928ca, #ff007f);
             color: white;
@@ -109,10 +113,10 @@
             border-radius: 10px;
             cursor: pointer;
             width: 100%;
+            text-decoration: none;
+            display: inline-block;
             transition: 0.3s ease;
             box-shadow: 0 5px 15px rgba(121, 40, 202, 0.4);
-            position: relative;
-            overflow: hidden;
         }
 
         .btn:hover {
@@ -124,7 +128,25 @@
             transform: scale(0.98);
         }
 
-        /* Thông báo nhỏ (Copied successfully) */
+        .btn-discord {
+            background: linear-gradient(135deg, #5865F2, #4752C4);
+            box-shadow: 0 5px 15px rgba(88, 101, 242, 0.4);
+        }
+        .btn-discord:hover {
+            box-shadow: 0 8px 25px rgba(88, 101, 242, 0.6);
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+            font-size: 14px;
+            padding: 10px;
+        }
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
         .toast {
             margin-top: 15px;
             font-size: 13px;
@@ -140,25 +162,28 @@
 </head>
 <body>
 
-    <!-- Hiệu ứng nền hạt không gian -->
     <canvas id="bgCanvas"></canvas>
 
     <div class="container">
         <h1>VIHIEU HUB</h1>
-        <p>Hệ thống Get Key tự động siêu tốc độ bảo mật cao</p>
+        <p>Chọn dịch vụ bạn muốn truy cập bên dưới</p>
         
-        <div class="key-box" id="keyText">VIHIEU-HUB-DZHUD</div>
-        
-        <button class="btn" onclick="copyKey()">SAO CHÉP KEY NGAY</button>
-        
-        <div class="toast" id="toastMsg">✨ Đã sao chép key thành công vào bộ nhớ tạm!</div>
+        <div class="menu-options" id="mainMenu">
+            <button class="btn" onclick="showKeySection()">🔑 GET KEY</button>
+            <a href="https://discord.gg/3AQmfnjwqK" target="_blank" class="btn btn-discord">💬 THAM GIA DISCORD</a>
+        </div>
+
+        <div class="key-section" id="keySection">
+            <div class="key-box" id="keyText">VIHIEU-HUB-DZHUD</div>
+            <button class="btn" onclick="copyKey()">SAO CHÉP KEY NGAY</button>
+            <button class="btn btn-back" onclick="goBack()">⬅ Quay lại menu</button>
+            <div class="toast" id="toastMsg">✨ Đã sao chép key thành công!</div>
+        </div>
     </div>
 
     <script>
-        // --- Hiệu ứng nền các hạt chuyển động (Particle Background) ---
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
-
         let particlesArray;
 
         function resizeCanvas() {
@@ -205,7 +230,6 @@
                 particlesArray[i].update();
                 particlesArray[i].draw();
 
-                // Nối các đường thẳng mờ giữa các hạt gần nhau tạo hiệu ứng không gian mạng
                 for (let j = i; j < particlesArray.length; j++) {
                     let dx = particlesArray[i].x - particlesArray[j].x;
                     let dy = particlesArray[i].y - particlesArray[j].y;
@@ -226,7 +250,16 @@
         initParticles();
         animateParticles();
 
-        // --- Chức năng bấm nút Copy Key ---
+        function showKeySection() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('keySection').style.display = 'block';
+        }
+
+        function goBack() {
+            document.getElementById('keySection').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'flex';
+        }
+
         function copyKey() {
             const keyText = document.getElementById('keyText').innerText;
             const toast = document.getElementById('toastMsg');
