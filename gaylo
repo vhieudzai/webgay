@@ -1,254 +1,166 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vi Hieu Hub - Advanced Lua Deobfuscator & Obfuscator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Protein — Lua Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d12; --panel:#12151d; --panel-2:#171b25; --line:#242a38;
+  --text:#dfe4ee; --muted:#7c8699; --amber:#f0a73a; --violet:#9b8cf2; --danger:#e8667a;
+  --mono:'JetBrains Mono',ui-monospace,monospace; --sans:'Space Grotesk',system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){--bg:#f3f1ea;--panel:#fffdf8;--panel-2:#ece8dd;--line:#d9d3c3;--text:#1c1d1f;--muted:#6b6557;}
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100%;}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 40px;}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;}
+header h1{font-size:1.5rem;margin:0;font-weight:700;letter-spacing:-0.01em;}
+header h1 span{color:var(--amber);}
+header p{margin:4px 0 0;color:var(--muted);font-size:.85rem;}
+.badge{font-family:var(--mono);font-size:.72rem;color:var(--amber);border:1px solid var(--line);padding:4px 10px;border-radius:4px;background:var(--panel);white-space:nowrap;}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:860px){.grid{grid-template-columns:1fr;}}
+.col label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:6px;}
+textarea{width:100%;height:280px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px;color:var(--text);font-family:var(--mono);font-size:.8rem;resize:vertical;outline:none;}
+textarea:focus{border-color:var(--amber);}
+#outputCode{color:#8fd6a3;}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-top:14px;}
+.panel h2{font-size:.82rem;margin:0 0 10px;color:var(--muted);font-weight:600;}
+.settings{display:flex;flex-wrap:wrap;gap:18px;align-items:center;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field span{font-size:.72rem;color:var(--muted);}
+.field input[type=number],.field input[type=text]{background:var(--panel-2);border:1px solid var(--line);color:var(--text);border-radius:4px;padding:6px 8px;font-family:var(--mono);font-size:.8rem;}
+.field input[type=number]{width:70px;}
+.check{display:flex;align-items:center;gap:7px;font-size:.78rem;color:var(--text);cursor:pointer;}
+.check input{accent-color:var(--amber);}
+
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+button{font-family:var(--sans);font-weight:600;font-size:.82rem;border:1px solid transparent;border-radius:6px;padding:10px 16px;cursor:pointer;transition:filter .15s;}
+button:hover{filter:brightness(1.12);}
+.btn-amber{background:var(--amber);color:#1a1200;}
+.btn-violet{background:var(--violet);color:#15102e;}
+.btn-ghost{background:var(--panel-2);color:var(--text);border-color:var(--line);}
+.btn-danger{background:transparent;color:var(--danger);border-color:var(--danger);}
+
+#log{font-family:var(--mono);font-size:.74rem;color:var(--muted);white-space:pre-wrap;line-height:1.55;max-height:160px;overflow-y:auto;}
+#log b{color:var(--amber);}
+footer{text-align:center;color:var(--muted);font-size:.72rem;margin-top:30px;border-top:1px solid var(--line);padding-top:14px;}
+</style>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col justify-between p-4 md:p-6">
-    <div class="max-w-5xl mx-auto w-full">
-        <!-- Tiêu đề trang -->
-        <header class="mb-4 border-b border-gray-800 pb-3 flex justify-between items-center">
-            <div>
-                <h1 class="text-xl md:text-2xl font-bold text-blue-400">Vi Hieu Hub - Ultimate Lua Suite</h1>
-                <p class="text-xs md:text-sm text-gray-400">Hệ thống bóc tách, giải mã và mã hóa đúp đa lớp siêu dài.</p>
-            </div>
-            <span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-mono rounded-md">v3.0 Pro</span>
-        </header>
-
-        <!-- Khu vực nhập và xuất code -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="flex flex-col">
-                <label class="block mb-1 text-sm font-medium text-gray-300">Code đầu vào (Input Code):</label>
-                <textarea id="inputCode" class="w-full h-72 md:h-96 bg-gray-900 border border-gray-800 rounded-lg p-3 font-mono text-xs md:text-sm focus:outline-none focus:border-blue-500 resize-none text-gray-200" placeholder="Dán code vào đây để giải mã hoặc mã hóa đúp..."></textarea>
-            </div>
-            <div class="flex flex-col">
-                <label class="block mb-1 text-sm font-medium text-gray-300">Kết quả xử lý:</label>
-                <textarea id="outputCode" readonly class="w-full h-72 md:h-96 bg-gray-900 border border-gray-800 rounded-lg p-3 font-mono text-xs md:text-sm focus:outline-none text-green-400 resize-none" placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
-            </div>
-        </div>
-
-        <!-- Thanh menu nút bấm -->
-        <div class="mt-4 flex flex-wrap items-center gap-3">
-            <button onclick="processCode()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-lg text-sm font-semibold transition shadow-lg shadow-blue-600/25">
-                Giải Mã Code
-            </button>
-            <button onclick="obfuscateCodeTwice()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2.5 rounded-lg text-sm font-semibold transition shadow-lg shadow-purple-600/25">
-                Mã Hóa Đúp 2 Lớp
-            </button>
-            <button onclick="copyOutput()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold transition border border-gray-700">
-                Copy Kết Quả
-            </button>
-            <button onclick="clearAll()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-4 py-2.5 rounded-lg text-sm font-semibold transition">
-                Xóa Tất Cả
-            </button>
-        </div>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Protein <span>// Lua Vault</span></h1>
+      <p>Đóng gói Lua chạy thật nhiều tầng bằng XOR xoay vòng, xáo tên biến, chèn rác.</p>
     </div>
+    <span class="badge">v4.0 — Multi-Layer</span>
+  </header>
 
-    <!-- Footer -->
-    <footer class="mt-6 text-center text-xs text-gray-500 border-t border-gray-900 pt-3">
-        &copy; 2026 Vi Hieu Hub. All rights reserved.
-    </footer>
+  <div class="grid">
+    <div class="col">
+      <label for="inputCode">Code đầu vào</label>
+      <textarea id="inputCode" placeholder="Dán code Lua (gốc hoặc đã mã hóa) vào đây..."></textarea>
+    </div>
+    <div class="col">
+      <label for="outputCode">Kết quả</label>
+      <textarea id="outputCode" readonly placeholder="Kết quả xuất hiện ở đây..."></textarea>
+    </div>
+  </div>
 
-    <script>
-        function parseLuaString(rawData) {
-            let bytes = [];
-            let i = 0;
-            while (i < rawData.length) {
-                if (rawData[i] === '\\') {
-                    let next = rawData[i+1];
-                    if (next === 'x') {
-                        let hex = rawData.substr(i+2, 2);
-                        bytes.push(parseInt(hex, 16));
-                        i += 4;
-                    } else if (next >= '0' && next <= '9') {
-                        let oct = "";
-                        i++;
-                        while (i < rawData.length && /\d/.test(rawData[i]) && oct.length < 3) {
-                            oct += rawData[i];
-                            i++;
-                        }
-                        bytes.push(parseInt(oct, 10));
-                    } else if (next === 'n') { bytes.push(10); i += 2; }
-                    else if (next === 't') { bytes.push(9); i += 2; }
-                    else if (next === 'r') { bytes.push(13); i += 2; }
-                    else if (next === '\\') { bytes.push(92); i += 2; }
-                    else if (next === '"') { bytes.push(34); i += 2; }
-                    else if (next === "'") { bytes.push(39); i += 2; }
-                    else {
-                        bytes.push(rawData.charCodeAt(i+1));
-                        i += 2;
-                    }
-                } else {
-                    bytes.push(rawData.charCodeAt(i));
-                    i++;
-                }
-            }
-            return bytes;
-        }
+  <div class="panel">
+    <h2>Tùy chọn mã hóa</h2>
+    <div class="settings">
+      <div class="field"><span>Số lớp</span><input id="numLayers" type="number" value="3" min="1" max="8"></div>
+      <div class="field"><span>Key tối thiểu</span><input id="keyMin" type="number" value="20" min="1" max="254"></div>
+      <div class="field"><span>Key tối đa</span><input id="keyMax" type="number" value="245" min="2" max="255"></div>
+      <label class="check"><input id="optJunk" type="checkbox" checked> Chèn biến rác mỗi lớp</label>
+      <label class="check"><input id="optRot" type="checkbox" checked> Xoay key theo vị trí byte</label>
+      <label class="check"><input id="optRand" type="checkbox" checked> Tên biến ngẫu nhiên</label>
+      <div class="field"><span>Chữ ký</span><input id="signature" type="text" value="protein" style="width:120px;"></div>
+    </div>
+  </div>
 
-        function processCode() {
-            let code = document.getElementById('inputCode').value;
-            if (!code.trim()) {
-                alert("Chưa nhập code kìa mày!");
-                return;
-            }
+  <div class="actions">
+    <button class="btn-violet" onclick="encodeMulti()">Mã Hóa Nhiều Lớp</button>
+    <button class="btn-ghost" onclick="copyOutput()">Copy Kết Quả</button>
+    <button class="btn-danger" onclick="clearAll()">Xóa Tất Cả</button>
+  </div>
 
-            let result = code;
-            let logInfo = [];
+  <div class="panel">
+    <h2>Nhật ký xử lý</h2>
+    <div id="log">Chưa có hoạt động nào.</div>
+  </div>
 
-            try {
-                let decodedAny = true;
-                let loops = 0;
+  <footer>© 2026 Protein  — công cụ bảo vệ script cá nhân, dùng cho mục đích học tập &amp; bảo vệ code của bạn.</footer>
+</div>
 
-                while (decodedAny && loops < 5) {
-                    decodedAny = false;
-                    loops++;
+<script>
+const $ = id => document.getElementById(id);
+function log(lines){ $('log').innerHTML = lines.map(l=>l.replace(/\[(.*?)\]/,'<b>[$1]</b>')).join('\n'); }
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function randName(){
+  const chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let s='_'+chars[randInt(0,chars.length-1)];
+  for(let i=0;i<randInt(3,6);i++) s+=chars[randInt(0,chars.length-1)];
+  return s;
+}
 
-                    let keyMatches = [...result.matchAll(/local\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(\d+)/g)];
-                    let dataMatches = [...result.matchAll(/local\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*"([^"]{10,})"|local\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*'([^']{10,})'/g)];
+// ---------- ENCODE ----------
+function wrapLayer(code, key, opts){
+  const kVar=opts.rand?randName():'_k', bVar=opts.rand?randName():'_b', sVar=opts.rand?randName():'_s', iVar=opts.rand?randName():'_i';
+  const bytes=[];
+  for(let i=0;i<code.length;i++){
+    let k=key;
+    if(opts.rot) k = (key + (i % 17)) % 256;
+    bytes.push(code.charCodeAt(i) ^ k);
+  }
+  let junk='';
+  if(opts.junk){
+    const jv=randName();
+    junk = `local ${jv}=${randInt(1000,99999)};`;
+  }
+  const rotExpr = opts.rot ? `((${kVar}+((${iVar}-1)%17))%256)` : kVar;
+  return `local ${kVar}=${key};${junk}local ${bVar}={${bytes.join(',')}};local ${sVar}="";`+
+         `for ${iVar}=1,#${bVar} do ${sVar}=${sVar}..string.char(${bVar}[${iVar}]~${rotExpr}) end;`+
+         `(loadstring or load)(${sVar})();`;
+}
 
-                    if (keyMatches.length > 0 && dataMatches.length > 0) {
-                        let key = parseInt(keyMatches[0][2], 10);
-                        let fullRawData = "";
-                        for (let dm of dataMatches) {
-                            fullRawData += (dm[2] || dm[4] || "");
-                        }
+function encodeMulti(){
+  const src=$('inputCode').value;
+  if(!src.trim()){ alert('Nhập code cần mã hóa đã!'); return; }
+  const layers=Math.max(1,Math.min(8,parseInt($('numLayers').value)||3));
+  let kmin=parseInt($('keyMin').value)||20, kmax=parseInt($('keyMax').value)||245;
+  if(kmax<=kmin) kmax=kmin+1;
+  const opts={ junk:$('optJunk').checked, rot:$('optRot').checked, rand:$('optRand').checked };
+  const sig=($('signature').value||'').trim();
+  let code=src, lines=[`-- [Protein ] Mã hóa ${layers} lớp thành công --`];
+  for(let i=1;i<=layers;i++){
+    const key=randInt(kmin,kmax);
+    code=wrapLayer(code,key,opts);
+    lines.push(`[Lớp ${i}] key=${key}${opts.rot?' (xoay theo vị trí)':''}${opts.rand?' · tên biến ngẫu nhiên':''}${opts.junk?' · có biến rác':''}`);
+  }
+  if(sig) code = `-- obf by ${sig}\n` + code;
+  $('outputCode').value = code;
+  log(lines);
+}
 
-                        if (fullRawData.length > 0) {
-                            let bytes = parseLuaString(fullRawData);
-                            let decrypted = "";
-                            for (let b of bytes) {
-                                decrypted += String.fromCharCode(b ^ key);
-                            }
-                            result = decrypted;
-                            logInfo.push(`[Lớp ${loops}] Giải mã XOR với Key = ${key}, Data size = ${bytes.length} bytes.`);
-                            decodedAny = true;
-                            continue;
-                        }
-                    }
-
-                    let hasEscapes = /\\(\d{1,3})|\\x[0-9A-Fa-f]{2}/.test(result);
-                    if (hasEscapes && loops === 1) {
-                        result = result.replace(/\\(\d{1,3})/g, (match, p1) => {
-                            let codeNum = parseInt(p1, 10);
-                            return (codeNum >= 0 && codeNum <= 255) ? String.fromCharCode(codeNum) : match;
-                        });
-                        result = result.replace(/\\x([0-9A-Fa-f]{2})/g, (match, p1) => {
-                            return String.fromCharCode(parseInt(p1, 16));
-                        });
-                        logInfo.push(`[Lớp ${loops}] Giải mã chuỗi escape byte.`);
-                        decodedAny = true;
-                    }
-                }
-
-                let headerLog = `-- [ VI HIEU HUB: BÓC TÁCH THÀNH CÔNG ${loops} LỚP ] --\n`;
-                if (logInfo.length > 0) {
-                    headerLog += `-- Log:\n--   * ` + logInfo.join("\n--   * ") + `\n\n`;
-                }
-                result = headerLog + result;
-
-            } catch (err) {
-                result = "Lỗi khi xử lý: " + err.message + "\n\nCode gốc:\n" + code;
-            }
-
-            document.getElementById('outputCode').value = result;
-        }
-
-        // Hàm mã hóa đơn 1 lớp XOR + chuỗi byte
-        function singleLayerEncrypt(plainText, key) {
-            let encodedBytes = "";
-            for (let i = 0; i < plainText.length; i++) {
-                let b = plainText.charCodeAt(i) ^ key;
-                encodedBytes += "\\" + b;
-            }
-            return `local _k = ${key}\nlocal _d = "${encodedBytes}"\nlocal _r = ""\nfor i = 1, #_d, 4 do\n    -- bóc byte\nend\n-- Vi Hieu Hub Protection\n`;
-        }
-
-        // Hàm mã hóa đúp 2 lớp liên tiếp
-        function obfuscateCodeTwice() {
-            let code = document.getElementById('inputCode').value;
-            if (!code.trim()) {
-                alert("Nhập code cần mã hóa vào đây đã mày!");
-                return;
-            }
-
-            try {
-                // Tạo 2 key ngẫu nhiên khác nhau
-                let key1 = Math.floor(Math.random() * 200) + 20;
-                let key2 = Math.floor(Math.random() * 200) + 30;
-
-                // Lớp 1: Mã hóa lần đầu
-                let rawBytes1 = "";
-                for (let i = 0; i < code.length; i++) {
-                    let b = code.charCodeAt(i) ^ key1;
-                    rawBytes1 += "\\" + b;
-                }
-
-                let layer1Code = `local k1 = ${key1}\nlocal d1 = "${rawBytes1}"\nlocal res1 = ""\nfor i = 1, #d1 do\n    -- layer 1 runner\nend\n`;
-                // Đóng gói thêm code thực thi giả lập unpack
-                let wrappedLayer1 = `local _k = ${key1}\nlocal _d = "${rawBytes1}"\n-- Vi Hieu Hub Layer 1 Locked\n`;
-
-                // Lớp 2: Lấy kết quả lớp 1 đem mã hóa đè tiếp lần nữa với key2
-                let rawBytes2 = "";
-                for (let i = 0; i < wrappedLayer1.length; i++) {
-                    let b = wrappedLayer1.charCodeAt(i) ^ key2;
-                    rawBytes2 += "\\" + b;
-                }
-
-                let finalObfuscated = `-- [ VI HIEU HUB: DOUBLE OBFUSCATED PROTECTED ] --\n` +
-                                      `local _K2 = ${key2}\n` +
-                                      `local _D2 = "${rawBytes2}"\n` +
-                                      `local _b = {}\n` +
-                                      `for i = 1, #_D2 do\n    -- loader v3\nend\n` +
-                                      `local _s = ""\n` +
-                                      `for i = 1, #_D2 do\n` +
-                                      `    -- decode routine\n` +
-                                      `end\n` +
-                                      `loadstring(_D2)() -- Loaded by Vi Hieu Hub`;
-
-                // Đơn giản hóa tạo ra chuỗi byte trực tiếp cho lớp 2 hoàn chỉnh chạy thực tế
-                let realBytes2 = "";
-                for(let i=0; i<wrappedLayer1.length; i++) {
-                    let b = wrappedLayer1.charCodeAt(i) ^ key2;
-                    // Format dạng \xHH hoặc \xxx
-                    realBytes2 += "\\" + (wrappedLayer1.charCodeAt(i) ^ key2);
-                }
-
-                let runnableDouble = `-- [ VI HIEU HUB: DOUBLE SECURED SCRIPT ] --\n` +
-                                     `local _k_master = ${key2}\n` +
-                                     `local _data_master = "${realBytes2}"\n` +
-                                     `local _decrypted_l1 = ""\n` +
-                                     `-- Thực thi bóc lớp 2 tự động\n` +
-                                     `local _bytes_l1 = {${Array.from(wrappedLayer1).map(c => c.charCodeAt(0) ^ key2).join(", ")}};\n` +
-                                     `for _, b in ipairs(_bytes_l1) do\n` +
-                                     `    _decrypted_l1 = _decrypted_l1 .. string.char(b ~ ${key2})\n` +
-                                     `end\n` +
-                                     `-- Tiếp tục thực thi lớp 1 bên trong...\n` +
-                                     `assert(loadstring or load)(_decrypted_l1)()` ;
-
-                document.getElementById('outputCode').value = runnableDouble;
-
-            } catch (err) {
-                alert("Lỗi mã hóa đúp: " + err.message);
-            }
-        }
-
-        function copyOutput() {
-            let output = document.getElementById('outputCode');
-            if (!output.value.trim()) {
-                alert("Không có gì để copy cả!");
-                return;
-            }
-            navigator.clipboard.writeText(output.value);
-            alert("Đã copy code mã hóa đúp thành công!");
-        }
-
-        function clearAll() {
-            document.getElementById('inputCode').value = '';
-            document.getElementById('outputCode').value = '';
-        }
-    </script>
+function copyOutput(){
+  const o=$('outputCode');
+  if(!o.value.trim()){ alert('Không có gì để copy!'); return; }
+  navigator.clipboard.writeText(o.value).then(()=>alert('Đã copy kết quả!'));
+}
+function clearAll(){ $('inputCode').value=''; $('outputCode').value=''; log(['Đã xóa.']); }
+</script>
 </body>
 </html>
