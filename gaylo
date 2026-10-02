@@ -162,4 +162,3 @@ function clearAll(){ $('inputCode').value=''; $('outputCode').value=''; log(['Đ
 </script>
 </body>
 </html>
-
