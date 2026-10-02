@@ -1,245 +1,166 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protein Obfuscator - ColorOS Edition</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Protein — Lua Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d12; --panel:#12151d; --panel-2:#171b25; --line:#242a38;
+  --text:#dfe4ee; --muted:#7c8699; --amber:#f0a73a; --violet:#9b8cf2; --danger:#e8667a;
+  --mono:'JetBrains Mono',ui-monospace,monospace; --sans:'Space Grotesk',system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){--bg:#f3f1ea;--panel:#fffdf8;--panel-2:#ece8dd;--line:#d9d3c3;--text:#1c1d1f;--muted:#6b6557;}
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100%;}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 40px;}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;}
+header h1{font-size:1.5rem;margin:0;font-weight:700;letter-spacing:-0.01em;}
+header h1 span{color:var(--amber);}
+header p{margin:4px 0 0;color:var(--muted);font-size:.85rem;}
+.badge{font-family:var(--mono);font-size:.72rem;color:var(--amber);border:1px solid var(--line);padding:4px 10px;border-radius:4px;background:var(--panel);white-space:nowrap;}
 
-        body {
-            background: linear-gradient(135deg, #0d0f18 0%, #16192b 100%);
-            color: #f8fafc;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:860px){.grid{grid-template-columns:1fr;}}
+.col label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:6px;}
+textarea{width:100%;height:280px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px;color:var(--text);font-family:var(--mono);font-size:.8rem;resize:vertical;outline:none;}
+textarea:focus{border-color:var(--amber);}
+#outputCode{color:#8fd6a3;}
 
-        /* Header phong cách kính mờ ColorOS */
-        header {
-            background: rgba(24, 27, 40, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-top:14px;}
+.panel h2{font-size:.82rem;margin:0 0 10px;color:var(--muted);font-weight:600;}
+.settings{display:flex;flex-wrap:wrap;gap:18px;align-items:center;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field span{font-size:.72rem;color:var(--muted);}
+.field input[type=number],.field input[type=text]{background:var(--panel-2);border:1px solid var(--line);color:var(--text);border-radius:4px;padding:6px 8px;font-family:var(--mono);font-size:.8rem;}
+.field input[type=number]{width:70px;}
+.check{display:flex;align-items:center;gap:7px;font-size:.78rem;color:var(--text);cursor:pointer;}
+.check input{accent-color:var(--amber);}
 
-        header h1 {
-            background: linear-gradient(135deg, #c084fc, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+button{font-family:var(--sans);font-weight:600;font-size:.82rem;border:1px solid transparent;border-radius:6px;padding:10px 16px;cursor:pointer;transition:filter .15s;}
+button:hover{filter:brightness(1.12);}
+.btn-amber{background:var(--amber);color:#1a1200;}
+.btn-violet{background:var(--violet);color:#15102e;}
+.btn-ghost{background:var(--panel-2);color:var(--text);border-color:var(--line);}
+.btn-danger{background:transparent;color:var(--danger);border-color:var(--danger);}
 
-        /* Layout Container */
-        .container {
-            display: flex;
-            flex: 1;
-            padding: 24px;
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        @media (max-width: 900px) {
-            .container {
-                flex-direction: column;
-            }
-        }
-
-        /* Khung kính mờ cho các thành phần (Glassmorphism) */
-        .editor-pane, .control-panel {
-            background: rgba(24, 27, 40, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        .editor-pane {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .editor-pane label, .control-group label, .control-panel h3 {
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #cbd5e1;
-            font-size: 14px;
-        }
-
-        .control-panel h3 {
-            font-size: 16px;
-            color: #f1f5f9;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 8px;
-            margin-bottom: 15px;
-        }
-
-        /* Textarea bo tròn mượt mà */
-        textarea {
-            flex: 1;
-            background: rgba(11, 13, 20, 0.7);
-            color: #e2e8f0;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 14px;
-            padding: 14px;
-            font-family: 'Fira Code', 'Courier New', Courier, monospace;
-            font-size: 13px;
-            resize: none;
-            outline: none;
-            min-height: 380px;
-            transition: all 0.3s ease;
-        }
-
-        textarea:focus {
-            border-color: #a855f7;
-            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
-        }
-
-        .control-panel {
-            width: 320px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        /* Input, Select và Button kiểu bo góc đậm chất ColorOS */
-        select, button {
-            padding: 12px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            background: rgba(15, 23, 42, 0.8);
-            color: #ffffff;
-            font-size: 14px;
-            outline: none;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-
-        select:focus {
-            border-color: #a855f7;
-            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
-        }
-
-        /* Nút bấm gradient nổi bật */
-        .btn-obfuscate {
-            background: linear-gradient(135deg, #9333ea, #c084fc);
-            color: white;
-            font-weight: 600;
-            border: none;
-            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
-            margin-top: 5px;
-        }
-
-        .btn-obfuscate:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
-        }
-
-        .btn-copy {
-            background: rgba(51, 65, 85, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            font-weight: 500;
-        }
-
-        .btn-copy:hover {
-            background: rgba(71, 85, 105, 0.8);
-        }
-    </style>
+#log{font-family:var(--mono);font-size:.74rem;color:var(--muted);white-space:pre-wrap;line-height:1.55;max-height:160px;overflow-y:auto;}
+#log b{color:var(--amber);}
+footer{text-align:center;color:var(--muted);font-size:.72rem;margin-top:30px;border-top:1px solid var(--line);padding-top:14px;}
+</style>
 </head>
 <body>
-
-    <header>
-        <h1>PROTEIN OBFUSCATOR</h1>
-    </header>
-
-    <div class="container">
-        <!-- Input Code -->
-        <div class="editor-pane">
-            <label for="inputCode">Source Code Gốc (Lua/Luau)</label>
-            <textarea id="inputCode" placeholder="-- Dán script của ông vào đây...&#10;print('Protein Obfuscator - ColorOS Style')"></textarea>
-        </div>
-
-        <!-- Options Panel -->
-        <div class="control-panel">
-            <h3>Cài Đặt Bảo Mật</h3>
-            
-            <div class="control-group">
-                <label>Mức độ Obfuscate</label>
-                <select id="level">
-                    <option value="low">Cơ bản (Low)</option>
-                    <option value="medium" selected>Trung bình (Medium)</option>
-                    <option value="high">Cực mạnh (High / Heavy)</option>
-                </select>
-            </div>
-
-            <div class="control-group">
-                <label>Mã hóa chuỗi (String Encrypt)</label>
-                <select id="stringEnc">
-                    <option value="true">Bật (Khuyên dùng)</option>
-                    <option value="false">Tắt</option>
-                </select>
-            </div>
-
-            <button class="btn-obfuscate" onclick="startObfuscate()">Tiến Hành Obfuscate</button>
-            <button class="btn-copy" onclick="copyCode()">Copy Code Đã Mã Hóa</button>
-        </div>
-
-        <!-- Output Code -->
-        <div class="editor-pane">
-            <label for="outputCode">Mã Nguồn Đã Mã Hóa (Protected Output)</label>
-            <textarea id="outputCode" readonly placeholder="-- Code sau khi obf sẽ hiện ở đây..."></textarea>
-        </div>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Protein <span>// Lua Vault</span></h1>
+      <p>Đóng gói Lua chạy thật nhiều tầng bằng XOR xoay vòng, xáo tên biến, chèn rác.</p>
     </div>
+    <span class="badge">v4.0 — Multi-Layer</span>
+  </header>
 
-    <script>
-        function startObfuscate() {
-            const code = document.getElementById('inputCode').value;
-            if (!code.trim()) {
-                alert("Vui lòng nhập source code trước!");
-                return;
-            }
+  <div class="grid">
+    <div class="col">
+      <label for="inputCode">Code đầu vào</label>
+      <textarea id="inputCode" placeholder="Dán code Lua (gốc hoặc đã mã hóa) vào đây..."></textarea>
+    </div>
+    <div class="col">
+      <label for="outputCode">Kết quả</label>
+      <textarea id="outputCode" readonly placeholder="Kết quả xuất hiện ở đây..."></textarea>
+    </div>
+  </div>
 
-            const randomID = Math.random().toString(36).substring(7);
-            const obfuscated = `-- [ PROTECTED BY PROTEIN OBFUSCATOR ]\n-- ID: ${randomID}\n\nlocal _1v = {\\${code.split('').map(c => c.charCodeAt(0)).join(',')}\\};\nlocal function _2v(t)\n    local s = "";\n    for _, v in ipairs(t) do s = s .. string.char(v) end;\n    return loadstring(s)();\nend;\n_2v(_1v);`;
+  <div class="panel">
+    <h2>Tùy chọn mã hóa</h2>
+    <div class="settings">
+      <div class="field"><span>Số lớp</span><input id="numLayers" type="number" value="3" min="1" max="8"></div>
+      <div class="field"><span>Key tối thiểu</span><input id="keyMin" type="number" value="20" min="1" max="254"></div>
+      <div class="field"><span>Key tối đa</span><input id="keyMax" type="number" value="245" min="2" max="255"></div>
+      <label class="check"><input id="optJunk" type="checkbox" checked> Chèn biến rác mỗi lớp</label>
+      <label class="check"><input id="optRot" type="checkbox" checked> Xoay key theo vị trí byte</label>
+      <label class="check"><input id="optRand" type="checkbox" checked> Tên biến ngẫu nhiên</label>
+      <div class="field"><span>Chữ ký</span><input id="signature" type="text" value="protein" style="width:120px;"></div>
+    </div>
+  </div>
 
-            document.getElementById('outputCode').value = obfuscated;
-        }
+  <div class="actions">
+    <button class="btn-violet" onclick="encodeMulti()">Mã Hóa Nhiều Lớp</button>
+    <button class="btn-ghost" onclick="copyOutput()">Copy Kết Quả</button>
+    <button class="btn-danger" onclick="clearAll()">Xóa Tất Cả</button>
+  </div>
 
-        function copyCode() {
-            const output = document.getElementById('outputCode');
-            if (!output.value) {
-                alert("Chưa có code để copy!");
-                return;
-            }
-            output.select();
-            navigator.clipboard.writeText(output.value);
-            alert("Đã copy code vào clipboard!");
-        }
-    </script>
+  <div class="panel">
+    <h2>Nhật ký xử lý</h2>
+    <div id="log">Chưa có hoạt động nào.</div>
+  </div>
+
+  <footer>© 2026 Protein  — công cụ bảo vệ script cá nhân, dùng cho mục đích học tập &amp; bảo vệ code của bạn.</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+function log(lines){ $('log').innerHTML = lines.map(l=>l.replace(/\[(.*?)\]/,'<b>[$1]</b>')).join('\n'); }
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function randName(){
+  const chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let s='_'+chars[randInt(0,chars.length-1)];
+  for(let i=0;i<randInt(3,6);i++) s+=chars[randInt(0,chars.length-1)];
+  return s;
+}
+
+// ---------- ENCODE ----------
+function wrapLayer(code, key, opts){
+  const kVar=opts.rand?randName():'_k', bVar=opts.rand?randName():'_b', sVar=opts.rand?randName():'_s', iVar=opts.rand?randName():'_i';
+  const bytes=[];
+  for(let i=0;i<code.length;i++){
+    let k=key;
+    if(opts.rot) k = (key + (i % 17)) % 256;
+    bytes.push(code.charCodeAt(i) ^ k);
+  }
+  let junk='';
+  if(opts.junk){
+    const jv=randName();
+    junk = `local ${jv}=${randInt(1000,99999)};`;
+  }
+  const rotExpr = opts.rot ? `((${kVar}+((${iVar}-1)%17))%256)` : kVar;
+  return `local ${kVar}=${key};${junk}local ${bVar}={${bytes.join(',')}};local ${sVar}="";`+
+         `for ${iVar}=1,#${bVar} do ${sVar}=${sVar}..string.char(${bVar}[${iVar}]~${rotExpr}) end;`+
+         `(loadstring or load)(${sVar})();`;
+}
+
+function encodeMulti(){
+  const src=$('inputCode').value;
+  if(!src.trim()){ alert('Nhập code cần mã hóa đã!'); return; }
+  const layers=Math.max(1,Math.min(8,parseInt($('numLayers').value)||3));
+  let kmin=parseInt($('keyMin').value)||20, kmax=parseInt($('keyMax').value)||245;
+  if(kmax<=kmin) kmax=kmin+1;
+  const opts={ junk:$('optJunk').checked, rot:$('optRot').checked, rand:$('optRand').checked };
+  const sig=($('signature').value||'').trim();
+  let code=src, lines=[`-- [Protein ] Mã hóa ${layers} lớp thành công --`];
+  for(let i=1;i<=layers;i++){
+    const key=randInt(kmin,kmax);
+    code=wrapLayer(code,key,opts);
+    lines.push(`[Lớp ${i}] key=${key}${opts.rot?' (xoay theo vị trí)':''}${opts.rand?' · tên biến ngẫu nhiên':''}${opts.junk?' · có biến rác':''}`);
+  }
+  if(sig) code = `-- obf by ${sig}\n` + code;
+  $('outputCode').value = code;
+  log(lines);
+}
+
+function copyOutput(){
+  const o=$('outputCode');
+  if(!o.value.trim()){ alert('Không có gì để copy!'); return; }
+  navigator.clipboard.writeText(o.value).then(()=>alert('Đã copy kết quả!'));
+}
+function clearAll(){ $('inputCode').value=''; $('outputCode').value=''; log(['Đã xóa.']); }
+</script>
 </body>
 </html>
