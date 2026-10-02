@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Protein — Lua Vault</title>
+<title>Vi Hieu Hub — Lua Vault</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -61,7 +61,7 @@ footer{text-align:center;color:var(--muted);font-size:.72rem;margin-top:30px;bor
 <div class="wrap">
   <header>
     <div>
-      <h1>Protein <span>// Lua Vault</span></h1>
+      <h1>Vi Hieu Hub <span>// Lua Vault</span></h1>
       <p>Đóng gói Lua chạy thật nhiều tầng bằng XOR xoay vòng, xáo tên biến, chèn rác.</p>
     </div>
     <span class="badge">v4.0 — Multi-Layer</span>
@@ -87,7 +87,6 @@ footer{text-align:center;color:var(--muted);font-size:.72rem;margin-top:30px;bor
       <label class="check"><input id="optJunk" type="checkbox" checked> Chèn biến rác mỗi lớp</label>
       <label class="check"><input id="optRot" type="checkbox" checked> Xoay key theo vị trí byte</label>
       <label class="check"><input id="optRand" type="checkbox" checked> Tên biến ngẫu nhiên</label>
-      <div class="field"><span>Chữ ký</span><input id="signature" type="text" value="protein" style="width:120px;"></div>
     </div>
   </div>
 
@@ -102,7 +101,7 @@ footer{text-align:center;color:var(--muted);font-size:.72rem;margin-top:30px;bor
     <div id="log">Chưa có hoạt động nào.</div>
   </div>
 
-  <footer>© 2026 Protein  — công cụ bảo vệ script cá nhân, dùng cho mục đích học tập &amp; bảo vệ code của bạn.</footer>
+  <footer>© 2026 Vi Hieu Hub — công cụ bảo vệ script cá nhân, dùng cho mục đích học tập &amp; bảo vệ code của bạn.</footer>
 </div>
 
 <script>
@@ -143,14 +142,13 @@ function encodeMulti(){
   let kmin=parseInt($('keyMin').value)||20, kmax=parseInt($('keyMax').value)||245;
   if(kmax<=kmin) kmax=kmin+1;
   const opts={ junk:$('optJunk').checked, rot:$('optRot').checked, rand:$('optRand').checked };
-  const sig=($('signature').value||'').trim();
-  let code=src, lines=[`-- [Protein ] Mã hóa ${layers} lớp thành công --`];
+  let code=src, lines=[`-- [VI HIEU HUB] Mã hóa ${layers} lớp thành công --`];
   for(let i=1;i<=layers;i++){
     const key=randInt(kmin,kmax);
     code=wrapLayer(code,key,opts);
     lines.push(`[Lớp ${i}] key=${key}${opts.rot?' (xoay theo vị trí)':''}${opts.rand?' · tên biến ngẫu nhiên':''}${opts.junk?' · có biến rác':''}`);
   }
-  if(sig) code = `-- obf by ${sig}\n` + code;
+  code = `-- obf by protein\n` + code;
   $('outputCode').value = code;
   log(lines);
 }
@@ -164,3 +162,4 @@ function clearAll(){ $('inputCode').value=''; $('outputCode').value=''; log(['Đ
 </script>
 </body>
 </html>
+
