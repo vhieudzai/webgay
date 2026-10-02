@@ -218,8 +218,9 @@
                 <label>Mức độ Obfuscate</label>
                 <select id="level">
                     <option value="low">Cơ bản (Low)</option>
-                    <option value="medium" selected>Trung bình (Medium)</option>
+                    <option value="medium">Trung bình (Medium)</option>
                     <option value="high">Cực mạnh (High / Heavy)</option>
+                    <option value="max" selected>Siêu mạnh (Max Security)</option>
                 </select>
             </div>
 
@@ -260,7 +261,6 @@
 
             let processedCode = code;
 
-            // Xử lý mã hóa chuỗi nếu bật
             if (stringEnc) {
                 processedCode = processedCode.replace(/'([^']*)'|"([^"]*)"/g, function(match, p1, p2) {
                     const content = p1 !== undefined ? p1 : p2;
@@ -278,12 +278,16 @@
                 const bytes = processedCode.split('').map(c => c.charCodeAt(0));
                 obfuscated = `--[[ [ PROTECTED BY PROTEIN OBFUSCATOR ]\n     ID: ${randomID} | Level: Low ]]--\nlocal _p = {${bytes.join(',')}};\nlocal function _r(t)\n    local s = "";\n    for _, v in ipairs(t) do s = s .. string.char(v) end;\n    return loadstring(s)();\nend;\n_r(_p);`;
             } else if (level === 'medium') {
-                const bytes = processedCode.split('').map(c => c.charCodeAt(0) ^ 5); // XOR đơn giản tránh nhìn thấy mặt chữ thuần
+                const bytes = processedCode.split('').map(c => c.charCodeAt(0) ^ 5);
                 obfuscated = `--[[ [ PROTECTED BY PROTEIN OBFUSCATOR ]\n     ID: ${randomID} | Level: Medium ]]--\nlocal _env = {}\nlocal _dat = {${bytes.join(',')}};\nlocal function _exec(d)\n    local res = "";\n    for i = 1, #d do res = res .. string.char(d[i] ~ 5) end;\n    return loadstring(res)();\nend;\n_exec(_dat);`;
-            } else {
-                // High / Heavy obfuscation (Chèn nhiều lớp mảng giả + xáo trộn)
+            } else if (level === 'high') {
                 const bytes = processedCode.split('').map(c => (c.charCodeAt(0) + 3) % 256);
                 obfuscated = `--[[ ========================================\n     PROTEIN OBFUSCATOR - HEAVY SECURE\n     ID: ${randomID}\n     Date: ${timestamp}\n     ======================================== ]]\n(function()\n    local _k = ${Math.floor(Math.random() * 50) + 10};\n    local _payload = {${bytes.join(',')}};\n    local function _unpack(arr)\n        local out = "";\n        for _, val in ipairs(arr) do\n            out = out .. string.char((val - 3) % 256);\n        end\n        return out;\n    end\n    local status, res = pcall(function()\n        return loadstring(_unpack(_payload))()\n    end);\n    if not status then\n        warn("[Protein Error]: Failed to initialize secure block.");\n    end\nend)();`;
+            } else {
+                // MAX SECURITY LEVEL (Siêu mạnh: XOR Key động + Đa lớp hàm bọc + Giả mạo cấu trúc)
+                const key = Math.floor(Math.random() * 100) + 15;
+                const bytes = processedCode.split('').map(c => (c.charCodeAt(0) ~ key));
+                obfuscated = `--[[ ====================================================\n     PROTEIN OBFUSCATOR - MAX SECURITY EDITION\n     ID: ${randomID} | Secured: ${timestamp}\n     ==================================================== ]]\n(function()\n    local _KEY = ${key};\n    local _DUMMY = {0x50, 0x52, 0x4F, 0x54, 0x45, 0x49, 0x4E};\n    local _STREAM = {${bytes.join(',')}};\n    local function _DECRYPT(_ARR, _K)\n        local _OUT = "";\n        for _I = 1, #_ARR do\n            _OUT = _OUT .. string.char(_ARR[_I] ~ _K);\n        end\n        return _OUT;\n    end\n    local _SUCC, _RES = pcall(function()\n        local _EXEC_FUNC = loadstring or load;\n        if type(_EXEC_FUNC) == "function" then\n            return _EXEC_FUNC(_DECRYPT(_STREAM, _KEY))();\n        end\n    end);\n    if not _SUCC then\n        error("[Protein Critical]: Environment execution blocked or invalid bytecode.");\n    end\nend)();`;
             }
 
             document.getElementById('outputCode').value = obfuscated;
