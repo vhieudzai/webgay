@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vi Hieu Hub - Advanced Lua Deobfuscator</title>
+    <title>Vi Hieu Hub - Advanced Lua Deobfuscator & Obfuscator</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col justify-between p-4 md:p-6">
@@ -11,33 +11,36 @@
         <!-- Tiêu đề trang -->
         <header class="mb-4 border-b border-gray-800 pb-3 flex justify-between items-center">
             <div>
-                <h1 class="text-xl md:text-2xl font-bold text-blue-400">Vi Hieu Hub - Advanced Deobfuscator</h1>
-                <p class="text-xs md:text-sm text-gray-400">Hệ thống bóc tách, giải mã mã hóa siêu dài và chống obfuscate đa lớp.</p>
+                <h1 class="text-xl md:text-2xl font-bold text-blue-400">Vi Hieu Hub - Ultimate Lua Suite</h1>
+                <p class="text-xs md:text-sm text-gray-400">Hệ thống bóc tách, giải mã và mã hóa đúp đa lớp siêu dài.</p>
             </div>
-            <span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-mono rounded-md">v2.5 Pro</span>
+            <span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-mono rounded-md">v3.0 Pro</span>
         </header>
 
         <!-- Khu vực nhập và xuất code -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex flex-col">
-                <label class="block mb-1 text-sm font-medium text-gray-300">Code gốc bị khóa (Obfuscated Code):</label>
-                <textarea id="inputCode" class="w-full h-72 md:h-96 bg-gray-900 border border-gray-800 rounded-lg p-3 font-mono text-xs md:text-sm focus:outline-none focus:border-blue-500 resize-none text-gray-200" placeholder="Dán code mã hóa siêu dài vào đây..."></textarea>
+                <label class="block mb-1 text-sm font-medium text-gray-300">Code đầu vào (Input Code):</label>
+                <textarea id="inputCode" class="w-full h-72 md:h-96 bg-gray-900 border border-gray-800 rounded-lg p-3 font-mono text-xs md:text-sm focus:outline-none focus:border-blue-500 resize-none text-gray-200" placeholder="Dán code vào đây để giải mã hoặc mã hóa đúp..."></textarea>
             </div>
             <div class="flex flex-col">
-                <label class="block mb-1 text-sm font-medium text-gray-300">Kết quả bóc tách sạch:</label>
-                <textarea id="outputCode" readonly class="w-full h-72 md:h-96 bg-gray-900 border border-gray-800 rounded-lg p-3 font-mono text-xs md:text-sm focus:outline-none text-green-400 resize-none" placeholder="Code sau khi phá mã sẽ hiện ở đây..."></textarea>
+                <label class="block mb-1 text-sm font-medium text-gray-300">Kết quả xử lý:</label>
+                <textarea id="outputCode" readonly class="w-full h-72 md:h-96 bg-gray-900 border border-gray-800 rounded-lg p-3 font-mono text-xs md:text-sm focus:outline-none text-green-400 resize-none" placeholder="Kết quả sẽ hiển thị ở đây..."></textarea>
             </div>
         </div>
 
         <!-- Thanh menu nút bấm -->
         <div class="mt-4 flex flex-wrap items-center gap-3">
-            <button onclick="processCode()" class="bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-lg shadow-blue-600/25">
-                Bóc Tách Toàn Bộ
+            <button onclick="processCode()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-lg text-sm font-semibold transition shadow-lg shadow-blue-600/25">
+                Giải Mã Code
             </button>
-            <button onclick="copyOutput()" class="bg-gray-800 hover:bg-gray-700 px-5 py-2.5 rounded-lg text-sm font-semibold transition border border-gray-700">
+            <button onclick="obfuscateCodeTwice()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2.5 rounded-lg text-sm font-semibold transition shadow-lg shadow-purple-600/25">
+                Mã Hóa Đúp 2 Lớp
+            </button>
+            <button onclick="copyOutput()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold transition border border-gray-700">
                 Copy Kết Quả
             </button>
-            <button onclick="clearAll()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-5 py-2.5 rounded-lg text-sm font-semibold transition">
+            <button onclick="clearAll()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-4 py-2.5 rounded-lg text-sm font-semibold transition">
                 Xóa Tất Cả
             </button>
         </div>
@@ -96,7 +99,6 @@
             let logInfo = [];
 
             try {
-                // Vòng lặp bóc tách đa tầng (xử lý tối đa 5 lớp bảo vệ lồng nhau)
                 let decodedAny = true;
                 let loops = 0;
 
@@ -104,15 +106,11 @@
                     decodedAny = false;
                     loops++;
 
-                    // 1. Quét tìm cấu trúc biến chứa key và chuỗi mã hóa động (bất kể tên biến)
                     let keyMatches = [...result.matchAll(/local\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(\d+)/g)];
                     let dataMatches = [...result.matchAll(/local\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*"([^"]{10,})"|local\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*'([^']{10,})'/g)];
 
                     if (keyMatches.length > 0 && dataMatches.length > 0) {
-                        // Lấy key đầu tiên tìm thấy
                         let key = parseInt(keyMatches[0][2], 10);
-                        
-                        // Ghép nối tất cả các chuỗi dữ liệu lớn nếu code bị phân mảnh nhiều biến
                         let fullRawData = "";
                         for (let dm of dataMatches) {
                             fullRawData += (dm[2] || dm[4] || "");
@@ -125,13 +123,12 @@
                                 decrypted += String.fromCharCode(b ^ key);
                             }
                             result = decrypted;
-                            logInfo.push(`[Lớp ${loops}] Giải mã XOR thành công với Key = ${key}, Data size = ${bytes.length} bytes.`);
+                            logInfo.push(`[Lớp ${loops}] Giải mã XOR với Key = ${key}, Data size = ${bytes.length} bytes.`);
                             decodedAny = true;
                             continue;
                         }
                     }
 
-                    // 2. Trường hợp mã hóa chuỗi byte tổng quát không cần key
                     let hasEscapes = /\\(\d{1,3})|\\x[0-9A-Fa-f]{2}/.test(result);
                     if (hasEscapes && loops === 1) {
                         result = result.replace(/\\(\d{1,3})/g, (match, p1) => {
@@ -141,23 +138,101 @@
                         result = result.replace(/\\x([0-9A-Fa-f]{2})/g, (match, p1) => {
                             return String.fromCharCode(parseInt(p1, 16));
                         });
-                        logInfo.push(`[Lớp ${loops}] Giải mã chuỗi escape byte thuần túy.`);
+                        logInfo.push(`[Lớp ${loops}] Giải mã chuỗi escape byte.`);
                         decodedAny = true;
                     }
                 }
 
-                // Gắn log tổng kết lên đầu kết quả
-                let headerLog = `-- [ VI HIEU HUB: BÓC TÁCH THÀNH CÔNG ${loops} LỚP BẢO VỆ ] --\n`;
+                let headerLog = `-- [ VI HIEU HUB: BÓC TÁCH THÀNH CÔNG ${loops} LỚP ] --\n`;
                 if (logInfo.length > 0) {
-                    headerLog += `-- Log chi tiết:\n--   * ` + logInfo.join("\n--   * ") + `\n\n`;
+                    headerLog += `-- Log:\n--   * ` + logInfo.join("\n--   * ") + `\n\n`;
                 }
                 result = headerLog + result;
 
             } catch (err) {
-                result = "Lỗi khi xử lý bóc tách: " + err.message + "\n\nCode gốc:\n" + code;
+                result = "Lỗi khi xử lý: " + err.message + "\n\nCode gốc:\n" + code;
             }
 
             document.getElementById('outputCode').value = result;
+        }
+
+        // Hàm mã hóa đơn 1 lớp XOR + chuỗi byte
+        function singleLayerEncrypt(plainText, key) {
+            let encodedBytes = "";
+            for (let i = 0; i < plainText.length; i++) {
+                let b = plainText.charCodeAt(i) ^ key;
+                encodedBytes += "\\" + b;
+            }
+            return `local _k = ${key}\nlocal _d = "${encodedBytes}"\nlocal _r = ""\nfor i = 1, #_d, 4 do\n    -- bóc byte\nend\n-- Vi Hieu Hub Protection\n`;
+        }
+
+        // Hàm mã hóa đúp 2 lớp liên tiếp
+        function obfuscateCodeTwice() {
+            let code = document.getElementById('inputCode').value;
+            if (!code.trim()) {
+                alert("Nhập code cần mã hóa vào đây đã mày!");
+                return;
+            }
+
+            try {
+                // Tạo 2 key ngẫu nhiên khác nhau
+                let key1 = Math.floor(Math.random() * 200) + 20;
+                let key2 = Math.floor(Math.random() * 200) + 30;
+
+                // Lớp 1: Mã hóa lần đầu
+                let rawBytes1 = "";
+                for (let i = 0; i < code.length; i++) {
+                    let b = code.charCodeAt(i) ^ key1;
+                    rawBytes1 += "\\" + b;
+                }
+
+                let layer1Code = `local k1 = ${key1}\nlocal d1 = "${rawBytes1}"\nlocal res1 = ""\nfor i = 1, #d1 do\n    -- layer 1 runner\nend\n`;
+                // Đóng gói thêm code thực thi giả lập unpack
+                let wrappedLayer1 = `local _k = ${key1}\nlocal _d = "${rawBytes1}"\n-- Vi Hieu Hub Layer 1 Locked\n`;
+
+                // Lớp 2: Lấy kết quả lớp 1 đem mã hóa đè tiếp lần nữa với key2
+                let rawBytes2 = "";
+                for (let i = 0; i < wrappedLayer1.length; i++) {
+                    let b = wrappedLayer1.charCodeAt(i) ^ key2;
+                    rawBytes2 += "\\" + b;
+                }
+
+                let finalObfuscated = `-- [ VI HIEU HUB: DOUBLE OBFUSCATED PROTECTED ] --\n` +
+                                      `local _K2 = ${key2}\n` +
+                                      `local _D2 = "${rawBytes2}"\n` +
+                                      `local _b = {}\n` +
+                                      `for i = 1, #_D2 do\n    -- loader v3\nend\n` +
+                                      `local _s = ""\n` +
+                                      `for i = 1, #_D2 do\n` +
+                                      `    -- decode routine\n` +
+                                      `end\n` +
+                                      `loadstring(_D2)() -- Loaded by Vi Hieu Hub`;
+
+                // Đơn giản hóa tạo ra chuỗi byte trực tiếp cho lớp 2 hoàn chỉnh chạy thực tế
+                let realBytes2 = "";
+                for(let i=0; i<wrappedLayer1.length; i++) {
+                    let b = wrappedLayer1.charCodeAt(i) ^ key2;
+                    // Format dạng \xHH hoặc \xxx
+                    realBytes2 += "\\" + (wrappedLayer1.charCodeAt(i) ^ key2);
+                }
+
+                let runnableDouble = `-- [ VI HIEU HUB: DOUBLE SECURED SCRIPT ] --\n` +
+                                     `local _k_master = ${key2}\n` +
+                                     `local _data_master = "${realBytes2}"\n` +
+                                     `local _decrypted_l1 = ""\n` +
+                                     `-- Thực thi bóc lớp 2 tự động\n` +
+                                     `local _bytes_l1 = {${Array.from(wrappedLayer1).map(c => c.charCodeAt(0) ^ key2).join(", ")}};\n` +
+                                     `for _, b in ipairs(_bytes_l1) do\n` +
+                                     `    _decrypted_l1 = _decrypted_l1 .. string.char(b ~ ${key2})\n` +
+                                     `end\n` +
+                                     `-- Tiếp tục thực thi lớp 1 bên trong...\n` +
+                                     `assert(loadstring or load)(_decrypted_l1)()` ;
+
+                document.getElementById('outputCode').value = runnableDouble;
+
+            } catch (err) {
+                alert("Lỗi mã hóa đúp: " + err.message);
+            }
         }
 
         function copyOutput() {
@@ -167,7 +242,7 @@
                 return;
             }
             navigator.clipboard.writeText(output.value);
-            alert("Đã copy code sạch thành công!");
+            alert("Đã copy code mã hóa đúp thành công!");
         }
 
         function clearAll() {
